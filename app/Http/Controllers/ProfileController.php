@@ -1,6 +1,8 @@
 <?php
 	namespace App\Http\Controllers;
 
+	use App\User;
+	use App\Comment;
 	use App\Http\Controllers\Controller;
 	use Illuminate\Http\Request;
 	use Illuminate\Support\Facades\DB;
@@ -12,30 +14,25 @@
 
 		public function getCommentsByProfile($id)
 		{
+	
+			$comments = Comment::where([
+				['profile', $id],
+				['parent_id']])
+			->skip(5)
+			->take(100000)
+			->get();
 
-			$comments = DB::table('comments')
-				->where([
-				  ['profile', '=', $id],
-				  ['parent_id'],
-				])
-				->offset(5)
-				->take(100000)
-				->get();
-		
-			$users = DB::table('users')
-				->where([
-				['id', $id]
-				])->get();
+			$users = User::where('id', $id)
+			->get();
 
 			$allComments = [];
 
 			foreach($comments as $comment){
-				$comments_kids = DB::table('comments')
-				->where([
-					['profile', $id],
-					['parent_id', $comment->id],
-				])
+				$comments_kids = Comment::where([
+				['profile', $id],
+				['parent_id', $comment->id]])
 				->get();
+
 				$totalComment = [
 					$comment,
 					'kids' => $comments_kids
@@ -67,22 +64,17 @@
 
 		public function show($id, Request $request)
 		{
-			$users = DB::table('users')
-				->where([
-				['id', '=', $id]
-				])->get();
+			$users = User::where('id', $id)
+			->get();
 
-			$comments = DB::table('comments')
-				->where([
-				  ['profile', '=', $id],
-				  ['parent_id'],
-				])
-				->take(5)
-				->get();
+			$comments = Comment::where([
+				['profile', $id],
+				['parent_id']])
+			->take(5)
+			->get();
 
-			$comments_kids = DB::table('comments')
-				->where('profile', '=', $id)
-				->orWhereNotNull('parent_id')
+			$comments_kids = Comment::where('profile', $id)
+				->orWhereNotNull(['parent_id'])
 				->get();
 
 			$i = 0;
@@ -119,23 +111,20 @@
 		}
 		public function showAll($id)
 		{
-			$users = DB::table('users')
-				->where([
-				['id', '=', $id]
-				])->get();
+			$users = User::where('id', $id)
+			->get();
 
-			$comments = DB::table('comments')
-				->where([
-				  ['profile', '=', $id],
-				  ['parent_id'],
-				])
-				->skip(5)
-				->take(100000000)
+			$comments = Comment::where([
+				['profile', $id],
+				['parent_id']])
+			->skip(5)
+			->take(10000)
+			->get();
+
+			$comments_kids = Comment::where('profile', $id)
+				->orWhereNotNull(['parent_id'])
 				->get();
-			$comments_kids = DB::table('comments')
-				->where('profile', '=', $id)
-				->orWhereNotNull('parent_id')
-				->get();
+
 			return view('showAll', [
 				'id' => $id ,
 				'users' => $users,
@@ -144,27 +133,24 @@
 			]);
 		}
 		public function delete(Request $request){
-		    DB::table('comments')
-		    ->where('id', $request['post_id'])
-		    ->delete(); 
+		    Comment::where('id', $request['post_id'])
+			->delete();
 		}
 		public function reply(Request $request, $id){
 			if (isset($request['parent_id'])){
-			    DB::table('comments')
-			    ->insert([
-				  'parent_id' => $request['parent_id'],
-				  'profile' => $id,
-				  'author' => Auth::id(),
-				  'heading' => $request['heading'],
-				  'text' => $request['text'],
+			    Comments::insert([
+					'parent_id' => $request['parent_id'],
+					'profile' => $id,
+					'author' => Auth::id(),
+					'heading' => $request['heading'],
+					'text' => $request['text'],
 				]);
 			} else {
-			    DB::table('comments')
-			    ->insert([
-				  'profile' => $id,
-				  'author' => Auth::id(),
-				  'heading' => $request['heading'],
-				  'text' => $request['text'],
+				Comment::insert([
+					'profile' => $id,
+					'author' => Auth::id(),
+					'heading' => $request['heading'],
+					'text' => $request['text'],
 				]);
 			}
 			return redirect()
