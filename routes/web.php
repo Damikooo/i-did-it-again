@@ -1,5 +1,5 @@
 <?php
-	Route::any('profile/{id}', 'ProfileController@show')->name('profile');
+	Route::get('profile/{id}', 'ProfileController@show')->name('profile');
 	Route::post('profile/{id}', 'ProfileController@reply');
 	Route::any('com/{id}', 'ProfileController@getCommentsByProfile');
 	Route::delete('/delete', 'ProfileController@delete');

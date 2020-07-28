@@ -14,16 +14,25 @@
 <div id="form" style="display:none;">
 	<form method="POST">
 		<input readonly type="text" name="parent_id" id="parent_id"><br>
-		<input required type="text" name="heading"><br>
-		<input required type="text" name="text"><br>
+		<input type="text" name="heading"><br>
+		<input type="text" name="text"><br>
 		<input type="submit" name="reply">
 	</form>
 </div>
 <div>
+	@if (count($errors) > 0)
+  <div class="alert alert-danger">
+    <ul>
+      @foreach ($errors->all() as $error)
+        <li style="color: red;">{{ $error }}</li>
+      @endforeach
+    </ul>
+  </div>
+@endif
 	<form method="POST">
 		Напишите пост
-		<input required type="text" name="heading"><br>
-		<input required type="text" name="text"><br>
+		<input type="text" name="heading"><br>
+		<input type="text" name="text"><br>
 		<input type="submit" name="reply">
 	</form>
 </div>

@@ -4,11 +4,22 @@
 	use App\User;
 	use App\Comment;
 	use App\Http\Controllers\Controller;
+	use App\Http\Requests\StoreBlogPost;
 	use Illuminate\Http\Request;
 	use Illuminate\Support\Facades\DB;
 	use Illuminate\Support\Facades\Auth;
 	use Illuminate\Support\Facades\View;
+	use Illuminate\Contracts\Validation\Validator;
 	use Response;
+
+	class StoreBlogPostController {
+
+    public function __invoke(BlogPostRequest $request) {
+      Post::create($request->validated());
+    }
+
+}
+
 	class ProfileController extends Controller
 	{
 
@@ -19,7 +30,7 @@
 				['profile', $id],
 				['parent_id']])
 			->skip(5)
-			->take(100000)
+			->take(PHP_INT_MAX)
 			->get();
 
 			$users = User::where('id', $id)
@@ -40,29 +51,27 @@
 
 				$allComments[] = $totalComment;
 			}
+
 			$view = View::make('showAll', [
 				'allComments' => $allComments ,
 			])->render();
 
-			
-			$Comments['status'] = "false";
-
-			if(empty($comments[0])):
-				// return "Комментариев больше нет";
-				return response($Comments);
-			elseif(empty($users[0])):
-				// return "Пользователя с таким id не существует";
-				return response($Comments);
+			if(empty($comments[0]) and empty($users[0])):
+				$response = [
+					'status' => false
+				];
+				return response($response);
 			else:
-				$Comments['html'] = $view;
-				$Comments['status'] = "true";
-				return response($Comments);
-			return $view;
+				$response = [
+					'html' => $view,
+					'status' => true
+				];
+				return response($response);
 			endif;
 
 		}
 
-		public function show($id, Request $request)
+		public function show($id, StoreBlogPost $request)
 		{
 			$users = User::where('id', $id)
 			->get();
@@ -132,13 +141,17 @@
 				'comments_kids' => $comments_kids,
 			]);
 		}
-		public function delete(Request $request){
+		public function delete(StoreBlogPost $request){
 		    Comment::where('id', $request['post_id'])
 			->delete();
 		}
-		public function reply(Request $request, $id){
+		public function reply(StoreBlogPost $request, $id){
+			$this->validate($request, [
+			    'heading' => 'required|max:100',
+			    'text' => 'required',
+			  ]);
 			if (isset($request['parent_id'])){
-			    Comments::insert([
+			    Comment::insert([
 					'parent_id' => $request['parent_id'],
 					'profile' => $id,
 					'author' => Auth::id(),
