@@ -6,13 +6,18 @@
 	Route::delete('/delete', 'ProfileController@delete');
 	Route::any('myprofile/{id}', 'ProfileController@showProfile');
 
-	Route::get('library/{id}', 'ProfileController@showLibrary')->name('library')->middleware(['auth', 'library']);
-	Route::post('library/{id}', 'ProfileController@shareBook');
-	Route::post('bookwrite', 'ProfileController@writeBook');
-	Route::post('bookremove', 'ProfileController@remove');
-	Route::post('bookedit', 'ProfileController@edit');
-	Route::post('lib', 'ProfileController@shareLibrary');
-	Route::get('book/{id}/', 'ProfileController@checkBook')->middleware(['book']);
+	Route::group(['middleware' => ['auth', 'book']], function () {
+		Route::get('book/{id}/', 'ProfileController@checkBook')->name('book');
+	});
+	Route::group(['middleware' => ['library']], function () {
+		Route::post('library/{id}', 'ProfileController@shareBook');
+		Route::post('bookwrite', 'ProfileController@writeBook');
+		Route::post('bookremove', 'ProfileController@remove');
+	});
+	Route::get('library/{id}', 'ProfileController@showLibrary')->middleware('lib')->name('library');
+	Route::post('lib', 'ProfileController@shareLibrary')->middleware('library');
+	Route::post('bookedit', 'ProfileController@edit')->middleware('edit');
+
 	// Маршруты аутентификации...
 	Route::get('auth/login', 'Auth\AuthController@getLogin');
 	Route::post('auth/login', 'Auth\AuthController@postLogin');

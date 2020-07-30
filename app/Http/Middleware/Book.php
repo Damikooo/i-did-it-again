@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App\Book as BookModel;
+use App\Library as LibraryModel;
 use Illuminate\Support\Facades\Auth;
 
 class Book
@@ -18,15 +19,13 @@ class Book
     public function handle($request, Closure $next)
     {
         $access = BookModel::where([
-            'id' => request()->segment(2),
-            'access' => 1,
+            'id' => request()->segment(2)
         ])
-        ->count();
-
-        if($access == 0):
-            return redirect('/home');
-        else:
+        ->get();
+        if($access[0]->access == 1 or $access[0]->author == Auth::id()):
             return $next($request);
+        else:
+            return redirect('/home');
         endif;
     }
 }

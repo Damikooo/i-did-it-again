@@ -7,6 +7,12 @@
 	<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>  
 </head>
 <body>
+@if ($accesstomy == 0 and $guest == 1)
+    <button class="share" id="{{ $id }}">Дать доступ к библиотеке</button><br>
+@elseif($accesstomy == 1 and $guest == 1)
+    <button class="deny" id="{{ $id }}">Отключить доступ к бибилиотеке</button><br>
+@endif
+
 @foreach ($users as $user)
 	{{ $user->email }}
 @endforeach
@@ -70,6 +76,37 @@ $.ajaxSetup({
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
 });
+$(".share").on("click", function(){
+      let share = $(this).attr("id");
+      let access = 1;
+    $.ajax({
+      url: 'http://laravel/lib',
+      method: 'post',
+      data: {
+        share, access
+      }
+    });
+    location.reload();
+  });
+  $(".deny").on("click", function(){
+      let share = $(this).attr("id");
+      let access = 0;
+    $.ajax({
+      url: 'http://laravel/lib',
+      method: 'post',
+      data: {
+        share, access
+      },
+	  success: function(response, statusText, status) {
+	    console.log('Запрос успешно отправился, получаем ответ', response);
+	  },
+	  error: function(XHR) {
+	    console.log('Ошибка запроса', status);
+	  }
+    });
+    location.reload();
+  });
+  
 $(".delete").on("click", function(){
     let post_id = $(this).attr("id");
 	$.ajax({
@@ -135,14 +172,6 @@ $(".all").on("click", function(){
 	  }
 	});
 });
-// $("#showAll").on("click", function(){
-// 	var container = document.getElementById ('container');
-// 	if (container.style.display !== 'none'){
-//   	container.style.display="none";
-// 	}else{
-// 		container.style.display="block";
-// 	}
-// });
 </script>
 </body>
 </html>

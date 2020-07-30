@@ -1,13 +1,12 @@
 <?php
 
 namespace App\Http\Middleware;
-
-use Closure;
-use App\Book as BookModel;
 use App\Library as LibraryModel;
 use Illuminate\Support\Facades\Auth;
 
-class Library
+use Closure;
+
+class Share
 {
     /**
      * Handle an incoming request.
@@ -18,8 +17,9 @@ class Library
      */
     public function handle($request, Closure $next)
     {
+
         $access = LibraryModel::where([
-            'user_id' => Auth::id()
+            'library_access' => Auth::id(),
         ])
         ->count();
         

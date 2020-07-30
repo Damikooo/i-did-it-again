@@ -62,6 +62,9 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'library' => \App\Http\Middleware\Library::class,
         'book' => \App\Http\Middleware\Book::class,
+        'share' => \App\Http\Middleware\Share::class,
+        'edit' => \App\Http\Middleware\EditBook::class,
+        'lib' => \App\Http\Middleware\Lib::class,
     ];
 
     /**

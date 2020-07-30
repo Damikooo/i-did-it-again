@@ -7,11 +7,6 @@
   <title></title>
 </head>
 <body>
-@if ($accesstomy == 0 and $guest == 1)
-    <button class="share" id="{{ $id }}">Дать доступ к библиотеке</button><br>
-@elseif($accesstomy == 1 and $guest == 1)
-    <button class="deny" id="{{ $id }}">Отключить доступ к бибилиотеке</button><br>
-@endif
 @if ($myaccess == 1)
   @foreach($books as $book)
     {{ $book->title }}
@@ -33,13 +28,13 @@
   <textarea name="text" cols="100" rows="30"></textarea><br>
   <input type="submit" name="write"><br>
 </form>
-@elseif ($access == 1)
+@else
   @foreach($books as $book)
-    {{ $book->title }}
+    {{ $book->title }}<br>
     <a href="/book/{{ $book->id }}">Читать</a><br>
   @endforeach
 @endif
-@if($guest == 0)
+@if($myaccess == 1)
   <script type="text/javascript">
   $.ajaxSetup({
       headers: {
@@ -78,44 +73,6 @@
       data: {
         book_id
       }
-    });
-    location.reload();
-  });
-  </script>
-@else
-<script type="text/javascript">
-  $.ajaxSetup({
-      headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      }
-  });
-  $(".share").on("click", function(){
-      let share = $(this).attr("id");
-      let access = 1;
-    $.ajax({
-      url: 'http://laravel/lib',
-      method: 'post',
-      data: {
-        share, access
-      }
-    });
-    location.reload();
-  });
-  $(".deny").on("click", function(){
-      let share = $(this).attr("id");
-      let access = 0;
-    $.ajax({
-      url: 'http://laravel/lib',
-      method: 'post',
-      data: {
-        share, access
-      },
-    success: function(response, statusText, status) {
-      console.log('Запрос успешно отправился, получаем ответ', response);
-    },
-    error: function(XHR) {
-      console.log('Ошибка запроса', XHR);
-    }
     });
     location.reload();
   });

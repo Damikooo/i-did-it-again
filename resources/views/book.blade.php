@@ -12,6 +12,9 @@
 {{ $book->text }}<br>
 <a href="/library/{{ $book->author }}">Вернуться в библиотеку</a>
 @else
+@foreach ($errors->all() as $error)
+  <li style="color: red;">{{ $error }}</li>
+@endforeach
 <input type="text" id="title" value="{{ $book->title }}"><br>
 <textarea id="text" cols="100" rows="30">{{ $book->text }}</textarea><br>
 <button class="edit" id="{{ $book->id }}">Отправить</button>
