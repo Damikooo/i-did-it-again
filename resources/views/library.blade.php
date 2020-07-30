@@ -49,9 +49,15 @@
       method: 'post',
       data: {
         share, access
-      }
+      },
+    success: function(response, statusText, status) {
+      console.log('Запрос успешно отправился, получаем ответ', response);
+    },
+    error: function(XHR) {
+      console.log('Ошибка запроса', XHR);
+    }
     });
-    location.reload();
+    // location.reload();
   });
   $(".deny").on("click", function(){
       let share = $(this).attr("id");

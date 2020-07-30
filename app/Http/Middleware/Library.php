@@ -18,13 +18,12 @@ class Library
      */
     public function handle($request, Closure $next)
     {
-        $access = LibraryModel::where([
-            'user_id' => Auth::id()
-        ])
-        ->count();
-        
-        if($access == 1):
+        $access = LibraryModel::where(['user_id' => Auth::id()])
+        ->get();
+
+        if (!empty($access)):
             return $next($request);
         endif;
+
     }
 }

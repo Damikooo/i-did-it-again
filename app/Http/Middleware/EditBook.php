@@ -16,13 +16,12 @@ class EditBook
      */
     public function handle($request, Closure $next)
     {
-        $access = BookModel::where([
-            'author' => Auth::id(),
-        ])
-        ->count();
-        
-        if($access == 1):
+        $access = BookModel::where('author', Auth::id())
+        ->find(1);
+
+        if (!empty($access)):
             return $next($request);
         endif;
+        return redirect('/home');
     }
 }

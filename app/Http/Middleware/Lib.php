@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use App\Library as LibraryModel;
 use Illuminate\Support\Facades\Auth;
-use Closure;
 class Lib
 {
     /**
@@ -16,15 +16,13 @@ class Lib
      */
     public function handle($request, Closure $next)
     {
-        $access = LibraryModel::where([
-            'user_id' => Auth::id(),
-            'library_access' => request()->segment(2),
-        ])
-        ->count();
-        if($access == 1 or request()->segment(2) == Auth::id()):
+        $access = LibraryModel::where('library_access', request()->segment(2))
+        ->orWhere('user_id', Auth::id())
+        ->get()
+        ->first();
+        if (!empty($access) or request()->segment(2) == Auth::id()):
             return $next($request);
-        else:
-            return redirect('/home');
         endif;
+        return redirect('/home');
     }
 }

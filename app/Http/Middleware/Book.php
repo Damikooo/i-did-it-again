@@ -18,14 +18,15 @@ class Book
      */
     public function handle($request, Closure $next)
     {
-        $access = BookModel::where([
-            'id' => request()->segment(2)
-        ])
-        ->get();
-        if($access[0]->access == 1 or $access[0]->author == Auth::id()):
-            return $next($request);
-        else:
+            $access = BookModel::where(['id' => request()->segment(2)])
+            ->get()
+            ->first();
+            
+            if (!empty($access)):
+                if($access->access == 1 or $access->author == Auth::id()):
+                    return $next($request);
+                endif;
+            endif;
             return redirect('/home');
-        endif;
     }
 }

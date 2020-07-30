@@ -101,7 +101,7 @@ $(".share").on("click", function(){
 	    console.log('Запрос успешно отправился, получаем ответ', response);
 	  },
 	  error: function(XHR) {
-	    console.log('Ошибка запроса', status);
+	    console.log('Ошибка запроса', XHR);
 	  }
     });
     location.reload();

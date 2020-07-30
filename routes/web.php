@@ -14,8 +14,8 @@
 		Route::post('bookwrite', 'ProfileController@writeBook');
 		Route::post('bookremove', 'ProfileController@remove');
 	});
-	Route::get('library/{id}', 'ProfileController@showLibrary')->middleware('lib')->name('library');
-	Route::post('lib', 'ProfileController@shareLibrary')->middleware('library');
+	Route::get('library/{id}', 'ProfileController@showLibrary')->middleware(['auth', 'lib'])->name('library');
+	Route::post('lib', 'ProfileController@shareLibrary')->middleware('auth');
 	Route::post('bookedit', 'ProfileController@edit')->middleware('edit');
 
 	// Маршруты аутентификации...

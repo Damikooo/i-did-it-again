@@ -27,15 +27,21 @@
 
 		public function getCommentsByProfile($id)
 		{
-	
+			$count = Comment::where([
+				['profile', $id],
+				['parent_id']])
+			->count();
+			$skip = 5;
+			$count = $count - $skip;
 			$comments = Comment::where([
 				['profile', $id],
 				['parent_id']])
 			->skip(5)
-			->take(PHP_INT_MAX)
+			->take($count)
 			->get();
 
 			$users = User::where('id', $id)
+			->find(1)
 			->get();
 
 			$allComments = [];
@@ -58,7 +64,7 @@
 				'allComments' => $allComments ,
 			])->render();
 
-			if(empty($comments[0]) and empty($users[0])):
+			if(empty($comments[0]) and empty($users)):
 				$response = [
 					'status' => false
 				];
@@ -169,6 +175,7 @@
 		}
 		public function reply(StoreBlogPost $request, $id){
 			$this->validate($request, [
+				'parent_id' => 'required|integer',
 			    'heading' => 'required|max:100',
 			    'text' => 'required',
 			  ]);
@@ -215,8 +222,8 @@
 		public function shareBook(StoreBlogPost $request)
 		{
 			$this->validate($request, [
-			    'share' => 'required',
-			    'access' => 'required',
+			    'share' => 'required|integer',
+			    'access' => 'required|integer',
 			  ]);
 
 			Book::where('id', $request['share'])
@@ -250,10 +257,11 @@
 		public function checkBook($id)
 		{	
 			$book = Book::where('id', $id)
-			->get();
+			->get()
+			->first();
 			$id = Auth::id();
 			return view('book', [
-				'book' => $book[0],
+				'book' => $book,
 				'id' => $id
 			]);
 		}
@@ -274,7 +282,7 @@
 		}
 		public function remove(StoreBlogPost $request){
 			$this->validate($request, [
-			    'book_id' => 'required',
+			    'book_id' => 'required|integer',
 			  ]);
 		    Book::where('id', $request['book_id'])
 			->delete();
@@ -283,7 +291,7 @@
 		}
 		public function edit(StoreBlogPost $request){
 			$this->validate($request, [
-			    'book_id' => 'required',
+			    'book_id' => 'required|integer',
 			    'title' => 'required|max:100',
 			    'text' => 'required',
 			  ]);
