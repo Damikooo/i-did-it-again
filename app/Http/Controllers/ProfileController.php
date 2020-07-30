@@ -3,6 +3,8 @@
 
 	use App\User;
 	use App\Comment;
+	use App\Book;
+	use App\Library;
 	use App\Http\Controllers\Controller;
 	use App\Http\Requests\StoreBlogPost;
 	use Illuminate\Http\Request;
@@ -168,5 +170,121 @@
 			}
 			return redirect()
 			->route('profile', ['id' => $id]);
+		}
+		public function showLibrary($id, StoreBlogPost $request)
+		{
+			$access = 0;
+
+			$myaccess = 0;
+
+			$guest = 1;
+
+			$accesstomy = 0;
+
+			$books = Book::where(
+				'author', $id
+			)
+       		->get();
+
+			$lib = Library::where([
+				'user_id' => $id,
+				'library_access' => Auth::id(),
+			])
+       		->count();
+
+       		$toMy = Library::where([
+				'user_id' => Auth::id(),
+				'library_access' => $id,
+			])
+       		->count();
+
+       		if($toMy == 1):
+       			$accesstomy = 1;
+       		endif;
+
+       		if($lib == 1):
+       			$access = 1;
+       		endif;
+
+       		if($id == Auth::id()):
+       			$myaccess = 1;
+       		endif;
+
+       		if($id == Auth::id()):
+       			$guest = 0;
+       		endif;
+
+			return view('library', [
+				'id' => $id,
+				'guest' => $guest,
+				'books' => $books ,
+				'access' => $access,
+				'myaccess' => $myaccess,
+				'accesstomy' => $accesstomy
+			]);
+		}
+		public function shareBook(StoreBlogPost $request)
+		{
+			Book::where('id', $request['share'])
+					->update(['access' => $request['access']]);
+		}
+		public function shareLibrary(StoreBlogPost $request)
+		{
+			$lib = Library::where([
+				'user_id' => Auth::id(),
+				'library_access' => $request['share'],
+			])
+       		->count();
+
+       		if ($lib == 1):
+       			Library::where([
+	        	'user_id' => Auth::id(),
+	        	'library_access' => $request['share'],
+	        ])
+       		->delete();
+       		else:
+	        Library::insert([
+	        	'user_id' => Auth::id(),
+	        	'library_access' => $request['share'],
+	        ]);
+       		endif;
+		}
+		public function checkBook($id)
+		{	
+			$book = Book::where('id', $id)
+			->get();
+			$id = Auth::id();
+			return view('book', [
+				'book' => $book[0],
+				'id' => $id
+			]);
+		}
+		public function writeBook(StoreBlogPost $request)
+		{	
+			$this->validate($request, [
+			    'title' => 'required|max:100',
+			    'text' => 'required',
+			  ]);
+			Book::insert([
+					'author' => Auth::id(),
+					'access' => 0,
+					'title' => $request['title'],
+					'text' => $request['text'],
+				]);
+			return redirect()
+				->route('library', ['id' => Auth::id()]);
+		}
+		public function remove(StoreBlogPost $request){
+		    Book::where('id', $request['book_id'])
+			->delete();
+			return redirect()
+				->route('library', ['id' => Auth::id()]);
+		}
+		public function edit(StoreBlogPost $request){
+		    Book::where('id', $request['book_id'])
+					->update([
+						'title' => $request['title'],
+						'text' => $request['text'],
+					]);
 		}
 	}

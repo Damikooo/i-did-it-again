@@ -109,14 +109,14 @@ function remove(i){
 $(".reply").on("click", function(){
 	let reply_id = $(this).attr("id");
 	document.getElementById('parent_id').value=reply_id;
-	var form = document.getElementById ('form');
+	let form = document.getElementById ('form');
 	form.style.display="block";
 	}
 );
 function reply(i){
 	let reply_id = $(i).attr("id");
 	document.getElementById('parent_id').value=reply_id;
-	var form = document.getElementById ('form');
+	let form = document.getElementById ('form');
 	form.style.display="block";
 	}
 
